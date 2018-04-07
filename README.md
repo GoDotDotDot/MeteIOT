@@ -1,5 +1,7 @@
 # MeteIOT Framework
 
+[![npm version](https://img.shields.io/npm/v/meteiot.svg)](https://www.npmjs.com/package/meteiot)[![npm downloads](https://img.shields.io/npm/dw/meteiot.svg)](https://npm-stat.com/charts.html?package=meteiot)[![Github All Releases](https://img.shields.io/github/downloads/godotdotdot/meteiot/total.svg)](https://github.com/GoDotDotDot/MeteIOT/releases)
+
 MeteIOT 是基于`nodejs`开发的一整套物联网数据通信服务框架。它由数据解析、数据传输和数据分发三大模块组成。MeteIOT采用`Websocket`通信协议来提供三方（硬件基础数据提供方、C端和数据服务后端）实时通信服务，`Websocket`采用`socket.io` 2.x版本。
 
 目前MeteIOT包含两个包，分别是`MeteParser`和`MeteProxy`。

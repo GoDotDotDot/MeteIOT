@@ -1,6 +1,6 @@
 {
   "name": "meteiot",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "IOT communication framework for eco.",
   "main": "index.js",
   "directories": {
@@ -11,6 +11,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [
+    "nodejs",
+    "iot",
+    "tcp",
+    "iot-framework",
+    "socket.io"
+  ],
   "author": "GoDotDotDot",
   "dependencies": {
     "bcrypt": "^1.0.3",
