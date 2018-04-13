@@ -1,5 +1,13 @@
-const {MeteProxy} = require('../index')
+const {MeteProxy} = require('meteiot')
+const app = new MeteProxy()
 
-const server = new MeteProxy({dbstr: `mongodb://account:${encodeURIComponent('password')}@iot.example.com/meteiot`})
+const stationClient = app.room('/stationClient')
+app.koa.use(router.routes()).use(router.allowedMethods())
 
-server.listen(8080)
+stationClient.on('connection', function (socket) {
+  socket.on('data', function (data) {
+    console.log(data)
+  })
+})
+
+app.listen(8080)

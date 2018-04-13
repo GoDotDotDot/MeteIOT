@@ -21,4 +21,4 @@ class DeviceTemperature extends MeteParser.Device {
  * 此处连接地址需要更改到以配置形式运行
  */
 
-module.exports = new DeviceTemperature(4003, '192.168.0.20')
+module.exports = new DeviceTemperature(4196, '192.168.0.200')

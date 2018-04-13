@@ -33,7 +33,7 @@ class MiddleWareTeampreature extends MeteParser.DeviceMiddleware {
     const buf2 = Buffer.from([0xFF, 0x55])
 
     // const number = getRandomIntInclusive(0, 15)
-    const number = 0
+    const number = 15
     // const numberToHex = number.toString(16)
     // const command = Buffer.from([numberToHex])
     // const buf = Buffer.concat([buf1, command, buf2, buf1, command, buf2])
@@ -41,13 +41,16 @@ class MiddleWareTeampreature extends MeteParser.DeviceMiddleware {
     // const buf1111 = Buffer.from([0xAA, 0xA3, 0x01, 0xFF, 0x0D, 0x55, 0xAA, 0xA3, 0x01, 0xFF, 0xFF, 0x55])
 
   //   client.write(buf)
+  console.log('sendcmmand',number)
+  this.device.sendCommand(number)
+/*  
     const cmd = this.device.command
     if (cmd && Buffer.isBuffer(cmd)) {
       // this.device.__proto__.sendCommand.call(this.device, this.device.command)
       this.device.__proto__.__proto__.sendCommand.call(this.device, cmd)
     } else {
       this.device.sendCommand(number)
-    }
+    }*/
   }
 }
 function getRandomIntInclusive (min, max) {

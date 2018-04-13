@@ -1,6 +1,6 @@
 {
   "name": "meteiot",
-  "version": "1.0.4",
+  "version": "1.2.1",
   "description": "IOT communication framework for eco.",
   "main": "index.js",
   "directories": {
