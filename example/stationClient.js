@@ -1,6 +1,6 @@
 const {MeteParser} = require('../index')
 const app = new MeteParser({
-  stationId: '0001'
+  id: '0001'
 })
 const io = require('socket.io-client')
 const deviceTempreature = require('./device_tempreature')

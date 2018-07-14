@@ -2,6 +2,8 @@
 
 [![npm version](https://img.shields.io/npm/v/meteiot.svg)](https://www.npmjs.com/package/meteiot)[![npm downloads](https://img.shields.io/npm/dw/meteiot.svg)](https://npm-stat.com/charts.html?package=meteiot)[![Github All Releases](https://img.shields.io/github/downloads/godotdotdot/meteiot/total.svg)](https://github.com/GoDotDotDot/MeteIOT/releases)
 
+**文档待更新**
+
 MeteIOT 是基于`nodejs`开发的一整套物联网数据通信服务框架。它由数据解析、数据传输和数据分发三大模块组成。MeteIOT采用`Websocket`通信协议来提供三方（硬件基础数据提供方、C端和数据服务后端）实时通信服务，`Websocket`采用`socket.io` 2.x版本。
 
 目前MeteIOT包含两个包，分别是`MeteParser`和`MeteProxy`。
@@ -11,8 +13,6 @@ MeteIOT 是基于`nodejs`开发的一整套物联网数据通信服务框架。�
 ## MeteIOT.MeteParser
 
 MeteParser提供硬件通信服务，基础通信协议为TCP。
-
-该类默认注册了`connect` `error` `closed` `timeout`四个事件，如果需要覆盖，请在子类中覆盖即可，默认回调函数以`_`开头，例如`connect`事件，即回调函数为`_connect`。
 
 ### 如何使用
 
@@ -149,7 +149,7 @@ return:
 
 
 
-#### Class:MeteParser.Device(port,  address)
+#### Class:MeteParser.Device( port,  address)
 
 设备驱动类构造函数
 
@@ -157,40 +157,6 @@ parameters:
 
 - port: `<Number>` 表示端口
 - address: `<String>` 表示连接地址
-
-该构造函数参数同`node.js` net模块[net.connect() ](https://nodejs.org/dist/latest-v8.x/docs/api/net.html#net_net_connect)  参数。
-
-#### Class:MeteParser.prototype.sendCommand(command)
-
-设备发送指令方法
-
-**该函数设计上为`DeviceMiddleware`类提供服务，不建议外部使用**
-
-parameters:
-
-- command: `<Any>` 指令，建议传递`Buffer`
-
-#### Class:MeteParser.prototype.on(event, callback)
-
-设备注册事件，该方法只是简单的对`node.js` `Event`封装
-
-**该函数设计上为`DeviceMiddleware`类提供服务，不建议外部使用**
-
-parameters:
-
-- event: `<String>` 事件名称
-- callback:`<Function>` 回调函数
-
-#### Class:MeteParser.prototype.removeListener(event, listener)
-
-移除设备已注册的事件，该方法只是简单的对`node.js` `Event`封装
-
-**该函数设计上为`DeviceMiddleware`类提供服务，不建议外部使用**
-
-parameters:
-
-- event: `<String>` 事件名称
-- listener:`<Function>` 回调函数
 
 #### Class:MeteParser.DeviceMiddleware(app, deviceId)
 
@@ -204,8 +170,6 @@ parameters:
 #### DeviceMiddleware.prototype.on(event, callback)
 
 用于注册事件，事件和`nodejs` `net.Socket`一致，请参考[new net.Socket([options])](new net.Socket([options]))。这里为了方便，注册**仅支持注册一个**回调函数，请特别注意！
-
-**`data`事件比较特殊，当注册`data`事件回调函数时，该函数如果有返回值则必须返回一个`Object`，若没有返回值则不会触发`Parser`的全局事件处理器，即不会触发`use`中间件**
 
 parameters:
 
@@ -230,17 +194,11 @@ parameters:
 
 return: `<Function>` 回调函数
 
-#### DeviceMiddleware.prototype.getAllEvents()
+#### DeviceMiddleware.prototype.getAllEvent()
 
 获取所有事件回调函数
 
 return: `<Object>` 所有已注册的事件回调函数
-
-#### DeviceMiddleware.prototype.addTime(obj)
-
-对原始对象添加时间对象，该事件对象键值为：`createTime`
-
-return: `<Object>` 原始`obj`新增`createTime`之后的对象
 
 ## MeteIOT.MeteProxy
 
@@ -248,22 +206,129 @@ MeteIOT数据分发模块，该模块将会部署在云端
 
 ### 如何使用
 
+#### 服务端：
+
 ```javascript
-const {MeteProxy} = require('meteiot')
-const app = new MeteProxy()
+const {MeteProxy} = require('MeteIOT')
 
-const stationClient = app.room('/stationClient')
-app.koa.use(router.routes()).use(router.allowedMethods())
+const server = new MeteProxy()
+server.listen(8080)
+```
 
-stationClient.on('connection', function (socket) {
-  socket.on('data', function (data) {
-    console.log(data)
+#### 客户端：
+
+##### 数据服务后端
+
+```javascript
+const io = require('socket.io-client')
+// namespace 必须为/serverClient
+const socket = io('xxx/serverClient', {
+  // 以下三项查询参数必须提供，否则将会被MeteProxy拒绝连接
+  query: {
+    serverId: '0001', // 后端服务ID
+    account: 'account', // 后端服务账号
+    password: 'password' // 后端服务密码
+  }
+})
+// data事件用于接受数据
+socket.on('data', function (data) {
+  console.log(data)
+})
+socket.on('error', function (err) {
+  console.log(err)
+})
+socket.on('connect', function (deviceId, command) {
+  console.log('connection')
+})
+```
+
+接受数据：
+
+```javascript
+socket.on('data', function (data) {
+  console.log(data)
+})
+```
+
+发送指令
+
+```javascript
+socket.emit('command','0001','温度传感器',command)
+/*参数说明
+* 1. 事件名称
+* 2. 站点ID
+* 3. 指令
+*/
+```
+
+##### C端
+
+```javascript
+// namespace 必须为/frontEndClient
+const socket = io('/frontEndClient')
+// C端不需要提供用户名密码，MeteProxy将会根据握手包获取IncommingMessage，从中获取cookie，从而从验证接口验证session
+ socket.on('data', function (data) {
+      
   })
+```
+
+接受数据：
+
+```javascript
+socket.on('data', function (data) {
+  console.log(data)
+})
+```
+
+发送指令
+
+```javascript
+发送指令请和后端联系
+```
+
+##### 硬件基础数据提供方
+
+```javascript
+const io = require('socket.io-client')
+// namespace 必须为/stationClient
+const socket = io('xxx/stationClient', {
+  query: {
+    stationId: '0001', // 站点ID
+    account: 'xzzm', // 站点账号
+    password: 'xzzm' // 站点密码
+  }
+})
+socket.on('data', function (err) {
+  console.log(err)
+})
+socket.on('error', function (err) {
+  console.log(err)
+})
+socket.on('connect', function () {
+  console.log('connection')
 })
 
-app.listen(8080)
-
 ```
+
+接受指令：
+
+```javascript
+socket.on('command', function (data) {
+  console.log(data)
+})
+```
+
+发送数据：
+
+发送数据请通过MeteParser中间件获取数据，然后通过socket.io websocket库进行发送。示例代码如下：
+
+```javascript
+app.use((ctx, next) => {
+  const { body } = ctx
+  socket.emit('data', body)
+})
+```
+
 
 ### API
 
@@ -277,9 +342,26 @@ parameters:
 
 ```javascript
 {
-    koaKeys:'' // koa keys，默认为['mete-iot-proxy']
+    dbstr:'数据库连接字符串`mongodb://account:${encodeURIComponent('password')}@iot.example.com/meteiot`',
+    session: {
+      key: 'koa:sess', /** (string) cookie key (default is koa:sess) */
+        /** (number || 'session') maxAge in ms (default is 1 days) */
+        /** 'session' will result in a cookie that expires when session/browser is closed */
+        /** Warning: If a session cookie is stolen, this cookie will never expire */
+      maxAge: 86400000,
+      overwrite: true, /** (boolean) can overwrite or not (default true) */
+      httpOnly: true, /** (boolean) httpOnly or not (default true) */
+      signed: true, /** (boolean) signed or not (default true) */
+      rolling: false, /** (boolean) Force a session identifier cookie to be set on every response. The expiration is reset to the original maxAge, resetting the expiration countdown. (default is false) */
+      renew: false, /** (boolean) renew session when session is nearly expired, so we can always keep user logged in. (default is false) */
+      store: new SessionStore()
+	} // 默认session配置
 }
 ```
+
+
+
+return:void
 
 #### MeteProxy.koa
 
@@ -295,23 +377,15 @@ parameters:
 
 - port: `<Number>` 监听端口
 
-#### MeteProxy.prototype.room(namespace)
-
-通过socket.io创建一个namespace
-
-parameters:
-
-- namespace: `<String>` 命名空间
-
-return: socket.io 的namespace
-
-#### MeteProxy.prototype.getIo()
-
-return: socket.io 实例
-
 #### 备注
 
-MeteProxy内部已使用Koa 2.x，koa keys为`mete-iot-proxy`，如需拓展web页面，可通过MeteProxy.koa来进行二次开发。
+MeteProxy内部已使用Koa 2.x，koa keys为`mete-iot-proxy`，内部已使用的中间件如下所示：
+
+- koa-session
+- koa-bodyparser
+- mongodb
+
+如需拓展web页面，可通过MeteProxy.koa来进行二次开发。
 
 ## LICENCE
 

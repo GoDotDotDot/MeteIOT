@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdn.bootcss.com/socket.io/2.0.4/socket.io.js"></script>
+</head>
+
+<body>
+    <span>温度：</span>
+    <span id="temp"></span>
+</body>
+
+</html>
+<script>
+    const temp = document.getElementById('temp')
+    const socket = io('/serverClient')
+
+    socket.on('data', function (data) {
+        temp.innerHTML = data['data']['温度传感器']
+    })
+    
+</script>
