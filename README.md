@@ -2,13 +2,11 @@
 
 [![npm version](https://img.shields.io/npm/v/meteiot.svg)](https://www.npmjs.com/package/meteiot)[![npm downloads](https://img.shields.io/npm/dw/meteiot.svg)](https://npm-stat.com/charts.html?package=meteiot)[![Github All Releases](https://img.shields.io/github/downloads/godotdotdot/meteiot/total.svg)](https://github.com/GoDotDotDot/MeteIOT/releases)
 
-**文档待更新**
-
 MeteIOT 是基于`nodejs`开发的一整套物联网数据通信服务框架。它由数据解析、数据传输和数据分发三大模块组成。MeteIOT采用`Websocket`通信协议来提供三方（硬件基础数据提供方、C端和数据服务后端）实时通信服务，`Websocket`采用`socket.io` 2.x版本。
 
 目前MeteIOT包含两个包，分别是`MeteParser`和`MeteProxy`。
 
-**该库暂且用于ECO公司内部使用，代码也是按照公司业务定制化，如果有其他用途，欢迎有志之士前来讨论，打造更通用的框架**
+**由于个人原因，该项目暂时搁置**
 
 ## MeteIOT.MeteParser
 
@@ -19,7 +17,7 @@ MeteParser提供硬件通信服务，基础通信协议为TCP。
 ```javascript
 const {MeteParser} = require('MeteIOT');
 const app = new Parser({
-  stationId: '0001' // 站点ID，必传！
+  id: '0001' // 站点ID，必传！
 })
 const io = require('socket.io-client')
 
@@ -31,6 +29,7 @@ const middlewareGrating = require('./middleware_grating')
 const socket = io('http://127.0.0.1:8080/stationClient', {
   query: {
     stationId: '0001', // 需要提供站点ID给Proxy服务器
+    stationName: '站点名称',
     account: 'xzzm', // 用户名
     password: 'xzzm' // 密码
   }
@@ -97,7 +96,7 @@ parameters:
 
 return: 返回Parser示例app
 
-#### Parser.prototype.register(device, deviceMiddleware)
+#### Parser.prototype.register(device, deviceMiddleware,[deviceMiddleware,deviceMiddleware,...])
 
 parser注册机，用于注册设备驱动和处理设备原始数据的中间件
 
@@ -105,6 +104,8 @@ parameters:
 
 - device: `<Device>` 设备驱动**实例**
 - deviceMiddleware: `<DeviceMiddleware>` 设备中间件**对象**
+
+可接受多个deviceMiddleware
 
 return: void
 
@@ -221,9 +222,9 @@ server.listen(8080)
 
 ```javascript
 const io = require('socket.io-client')
-// namespace 必须为/serverClient
+// namespace 自定义，需配合MeteIOT.Proxy使用
 const socket = io('xxx/serverClient', {
-  // 以下三项查询参数必须提供，否则将会被MeteProxy拒绝连接
+  // 以下三项查询参数建议提供，用于鉴权
   query: {
     serverId: '0001', // 后端服务ID
     account: 'account', // 后端服务账号
@@ -264,7 +265,7 @@ socket.emit('command','0001','温度传感器',command)
 ##### C端
 
 ```javascript
-// namespace 必须为/frontEndClient
+// namespace 自定义，需配合MeteIOT.Proxy使用
 const socket = io('/frontEndClient')
 // C端不需要提供用户名密码，MeteProxy将会根据握手包获取IncommingMessage，从中获取cookie，从而从验证接口验证session
  socket.on('data', function (data) {
@@ -290,7 +291,7 @@ socket.on('data', function (data) {
 
 ```javascript
 const io = require('socket.io-client')
-// namespace 必须为/stationClient
+// namespace 自定义，需配合MeteIOT.Proxy使用
 const socket = io('xxx/stationClient', {
   query: {
     stationId: '0001', // 站点ID
@@ -376,6 +377,14 @@ return: koa 实例
 parameters:
 
 - port: `<Number>` 监听端口
+
+#### MeteProxy.prototype.room(name)
+
+直接调用 io.of(name)，用于创建home
+
+parameters:
+
+- name: `<String>` socket.io房间地址
 
 #### 备注
 
